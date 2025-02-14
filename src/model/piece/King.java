@@ -44,4 +44,9 @@ public class King extends Piece {
         }
         return validMoves;
     }
+
+    @Override
+    public String getImage() {
+        return "resources/piece/" + (this.getColor() == ChessColor.WHITE ? "white" : "black") + "_king.png";
+    }
 }

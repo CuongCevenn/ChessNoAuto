@@ -41,4 +41,9 @@ public class Knight extends Piece {
         }
         return validMoves;
     }
+
+    @Override
+    public String getImage() {
+        return "resources/piece/" + (this.getColor() == ChessColor.WHITE ? "white" : "black") + "_knight.png";
+    }
 }
