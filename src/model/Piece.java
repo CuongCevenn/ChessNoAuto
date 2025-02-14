@@ -92,6 +92,32 @@ public abstract class Piece {
         return false;
     }
 
+    public boolean hasLegalMove(Piece[][] board) {
+        int[][] validMoves = this.getValidMoves(board);
+
+        int oldX = this.getX();
+        int oldY = this.getY();
+
+        for (int[] validMove : validMoves) {
+            if (validMove[0] == -1 || validMove[1] == -1) {
+                continue;
+            }
+            Piece[][] newBoard = new Piece[8][8];
+            for (int i = 0; i < 8; i++) {
+                System.arraycopy(board[i], 0, newBoard[i], 0, 8);
+            }
+            newBoard[validMove[0]][validMove[1]] = this;
+            newBoard[this.getX()][this.getY()] = null;
+            this.move(validMove[0], validMove[1]);
+            if (!this.isChecked(newBoard)) {
+                this.move(oldX, oldY);
+                return true;
+            }
+        }
+        this.move(oldX, oldY);
+        return false;
+    }
+
     public String getName() {
         return name;
     }

@@ -13,8 +13,8 @@ public class ChessBoard {
 
     private boolean whiteIsMoving;
 
-    private char[] columnLabels = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-    private char[] rowLabels = {'1', '2', '3', '4', '5', '6', '7', '8'};
+    private final char[] columnLabels = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+    private final char[] rowLabels = {'1', '2', '3', '4', '5', '6', '7', '8'};
 
     public ChessBoard() {
         this.size = 8;
@@ -96,6 +96,9 @@ public class ChessBoard {
             System.out.println("No piece at the starting position");
             return;
         }
+        if (startX == endX && startY == endY) {
+            return;
+        }
         if (board[startX][startY] != null && (board[startX][startY].getColor() == ChessColor.BLACK && whiteIsMoving) || (board[startX][startY].getColor() == ChessColor.WHITE && !whiteIsMoving)) {
             invalidMove(board[startX][startY], endX, endY);
             return;
@@ -140,6 +143,10 @@ public class ChessBoard {
             }
 
             whiteIsMoving = color != ChessColor.WHITE;
+
+            if (isCheckMate() != 0) {
+                getResults();
+            }
         } else {
             invalidMove(board[startX][startY], endX, endY);
         }
@@ -148,26 +155,30 @@ public class ChessBoard {
     public int isCheckMate() {
         boolean isChecking = (whiteIsMoving && whiteIsChecked) || (!whiteIsMoving && blackIsChecked);
         ChessColor color = whiteIsMoving ? ChessColor.WHITE : ChessColor.BLACK;
-        int legalMoves = 0;
+        boolean legalMoves = false;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (board[i][j] != null && board[i][j].getColor() == color) {
-                    int[][] validMoves = board[i][j].getValidMoves(board);
-                    for (int[] validMove : validMoves) {
-                        if (validMove[0] != -1 && validMove[1] != -1) {
-                            legalMoves++;
-                        }
-                    }
+                    legalMoves = legalMoves || board[i][j].hasLegalMove(board);
                 }
             }
         }
-        if (isChecking && legalMoves == 0) {
+        if (isChecking && !legalMoves) {
             return 1;
-        } else if (!isChecking && legalMoves == 0) {
+        } else if (!isChecking && !legalMoves) {
             return 2;
         }
 
         return 0;
+    }
+
+    public void getResults() {
+        int result = isCheckMate();
+        if (result == 1) {
+            System.out.println("Checkmate");
+        } else if (result == 2) {
+            System.out.println("Stalemate");
+        }
     }
 
     public void setWhiteIsChecked(boolean whiteIsChecked) {
