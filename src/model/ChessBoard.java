@@ -13,6 +13,9 @@ public class ChessBoard {
 
     private boolean whiteIsMoving;
 
+    private char[] columnLabels = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+    private char[] rowLabels = {'1', '2', '3', '4', '5', '6', '7', '8'};
+
     public ChessBoard() {
         this.size = 8;
         this.board = new Piece[size][size];
@@ -34,6 +37,10 @@ public class ChessBoard {
     public ChessBoard(int size) {
         this.size = size;
         this.board = new Piece[size][size];
+    }
+
+    private void invalidMove(Piece piece, int endX, int endY) {
+        System.out.println("Invalid move " + piece.getColor().getName() + " " + piece.getName() + " to " + columnLabels[endY] + rowLabels[endX]);
     }
 
     private void initializeBoard() {
@@ -90,7 +97,7 @@ public class ChessBoard {
             return;
         }
         if (board[startX][startY] != null && (board[startX][startY].getColor() == ChessColor.BLACK && whiteIsMoving) || (board[startX][startY].getColor() == ChessColor.WHITE && !whiteIsMoving)) {
-            System.out.println("Invalid move");
+            invalidMove(board[startX][startY], endX, endY);
             return;
         }
         if (board[startX][startY].isValidMove(endX, endY, board)) {
@@ -118,17 +125,23 @@ public class ChessBoard {
                 board[startX][startY] = null;
 
                 if (board[endX][endY].isChecked(board)) {
-                    System.out.println("Invalid move");
+                    invalidMove(board[endX][endY], endX, endY);
                     board[startX][startY] = board[endX][endY];
                     board[startX][startY].move(startX, startY);
                     board[endX][endY] = temp;
                     return;
                 }
+
+                if (color == ChessColor.WHITE) {
+                    whiteIsChecked = false;
+                } else {
+                    blackIsChecked = false;
+                }
             }
 
             whiteIsMoving = color != ChessColor.WHITE;
         } else {
-            System.out.println("Invalid move");
+            invalidMove(board[startX][startY], endX, endY);
         }
     }
 
