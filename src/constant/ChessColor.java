@@ -1,8 +1,8 @@
 package constant;
 
 public enum ChessColor {
-    WHITE(0, "White"),
-    BLACK(1, "Black");
+    WHITE(0, "white"),
+    BLACK(1, "black");
 
     private final int value;
     private final String name;
