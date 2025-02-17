@@ -80,4 +80,9 @@ public class Bishop extends Piece {
 
         return validMoves;
     }
+
+    @Override
+    public String getImage() {
+        return "resources/piece/" + (this.getColor() == ChessColor.WHITE ? "white" : "black") + "_bishop.png";
+    }
 }
