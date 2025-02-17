@@ -106,59 +106,43 @@ public class ChessBoard {
         if (board[startX][startY].isValidMove(endX, endY, board)) {
             ChessColor color = board[startX][startY].getColor();
 
-            if (color == ChessColor.WHITE && !whiteIsChecked || color == ChessColor.BLACK && !blackIsChecked) {
-                board[endX][endY] = board[startX][startY];
-                board[endX][endY].move(endX, endY);
-                board[startX][startY] = null;
 
-                if (isCrossMove(board[endX][endY] ,startX, startY, endX, endY)) {
-                    board[startX][endY] = null;
-                }
+            Piece temp = board[endX][endY];
 
-                if (board[endX][endY].check(board)) {
-                    if (color == ChessColor.WHITE) {
-                        blackIsChecked = true;
-                        System.out.println("Check");
-                    } else {
-                        whiteIsChecked = true;
-                        System.out.println("Check");
-                    }
-                }
-                expiredCrossMove();
-                validateCross(board[endX][endY], startX, startY, endX, endY);
-            } else {
-                Piece temp = board[endX][endY];
+            board[endX][endY] = board[startX][startY];
+            board[endX][endY].move(endX, endY);
+            board[startX][startY] = null;
 
-                board[endX][endY] = board[startX][startY];
-                board[endX][endY].move(endX, endY);
-                board[startX][startY] = null;
+            if (board[endX][endY].isChecked(board)) {
+                invalidMove(board[endX][endY], endX, endY);
+                board[startX][startY] = board[endX][endY];
+                board[startX][startY].move(startX, startY);
+                board[endX][endY] = temp;
+                return;
+            }
 
-                if (isCrossMove(board[endX][endY], startX, startY, endX, endY)) {
-                    board[startX][endY] = null;
-                }
+            if (isCrossMove(board[endX][endY] ,startX, startY, endX, endY)) {
+                board[startX][endY] = null;
+            }
 
-                if (board[endX][endY].isChecked(board)) {
-                    invalidMove(board[endX][endY], endX, endY);
-                    board[startX][startY] = board[endX][endY];
-                    board[startX][startY].move(startX, startY);
-                    board[endX][endY] = temp;
-                    return;
-                }
-
+            if (board[endX][endY].check(board)) {
                 if (color == ChessColor.WHITE) {
-                    whiteIsChecked = false;
+                    blackIsChecked = true;
+                    System.out.println("Check");
                 } else {
-                    blackIsChecked = false;
+                    whiteIsChecked = true;
+                    System.out.println("Check");
                 }
             }
+            expiredCrossMove();
+            validateCross(board[endX][endY], startX, startY, endX, endY);
+
 
             whiteIsMoving = color != ChessColor.WHITE;
 
             if (isCheckMate() != 0) {
                 getResults();
             }
-            expiredCrossMove();
-            validateCross(board[endX][endY], startX, startY, endX, endY);
         } else {
             invalidMove(board[startX][startY], endX, endY);
         }

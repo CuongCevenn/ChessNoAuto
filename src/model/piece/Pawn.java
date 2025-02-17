@@ -26,6 +26,10 @@ public class Pawn extends Piece {
         int direction = this.isTopToBottom() ? 1 : -1;
         int startRow = this.isTopToBottom() ? 1 : 6;
 
+        if (this.getX() == 0 || this.getX() == 7) {
+            return new int[0][0];
+        }
+
         int[][] validMoves = new int[4][2];
         for (int i = 0; i < validMoves.length; i++) {
             validMoves[i][0] = -1;
