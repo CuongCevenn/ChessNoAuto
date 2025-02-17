@@ -106,41 +106,37 @@ public class ChessBoard {
         if (board[startX][startY].isValidMove(endX, endY, board)) {
             ChessColor color = board[startX][startY].getColor();
 
-            if (color == ChessColor.WHITE && !whiteIsChecked || color == ChessColor.BLACK && !blackIsChecked) {
-                board[endX][endY] = board[startX][startY];
-                board[endX][endY].move(endX, endY);
-                board[startX][startY] = null;
 
-                if (board[endX][endY].check(board)) {
-                    if (color == ChessColor.WHITE) {
-                        blackIsChecked = true;
-                        System.out.println("Check");
-                    } else {
-                        whiteIsChecked = true;
-                        System.out.println("Check");
-                    }
-                }
-            } else {
-                Piece temp = board[endX][endY];
+            Piece temp = board[endX][endY];
 
-                board[endX][endY] = board[startX][startY];
-                board[endX][endY].move(endX, endY);
-                board[startX][startY] = null;
+            board[endX][endY] = board[startX][startY];
+            board[endX][endY].move(endX, endY);
+            board[startX][startY] = null;
 
-                if (board[endX][endY].isChecked(board)) {
-                    invalidMove(board[endX][endY], endX, endY);
-                    board[startX][startY] = board[endX][endY];
-                    board[startX][startY].move(startX, startY);
-                    board[endX][endY] = temp;
-                    return;
-                }
+            if (board[endX][endY].isChecked(board)) {
+                invalidMove(board[endX][endY], endX, endY);
+                board[startX][startY] = board[endX][endY];
+                board[startX][startY].move(startX, startY);
+                board[endX][endY] = temp;
+                return;
+            }
 
+            if (isCrossMove(board[endX][endY] ,startX, startY, endX, endY)) {
+                board[startX][endY] = null;
+            }
+
+            if (board[endX][endY].check(board)) {
                 if (color == ChessColor.WHITE) {
-                    whiteIsChecked = false;
+                    blackIsChecked = true;
+                    System.out.println("Check");
                 } else {
-                    blackIsChecked = false;
+                    whiteIsChecked = true;
+                    System.out.println("Check");
                 }
             }
+            expiredCrossMove();
+            validateCross(board[endX][endY], startX, startY, endX, endY);
+
 
             whiteIsMoving = color != ChessColor.WHITE;
 
@@ -149,6 +145,32 @@ public class ChessBoard {
             }
         } else {
             invalidMove(board[startX][startY], endX, endY);
+        }
+    }
+
+    private void validateCross(Piece piece, int startX, int startY, int endX, int endY) {
+        if (piece instanceof Pawn && (startX == 1 || startX == 6) && Math.abs(endX - startX) == 2) {
+            int newX = (startX == 1) ? 3 : 4;
+            if (startY > 0 && board[newX][startY - 1] != null && board[newX][startY - 1].getColor() != piece.getColor() && board[newX][startY - 1] instanceof Pawn) {
+                ((Pawn) board[newX][startY - 1]).setCrossed(true);
+            }
+            if (startY < 7 && board[newX][startY + 1] != null && board[newX][startY + 1].getColor() != piece.getColor() && board[newX][startY + 1] instanceof Pawn) {
+                ((Pawn) board[newX][startY + 1]).setCrossed(true);
+            }
+        }
+    }
+
+    private boolean isCrossMove(Piece piece, int startX, int startY, int endX, int endY) {
+        return piece instanceof Pawn && board[startX][endY] != null && board[startX][endY] instanceof Pawn && board[startX][endY].getColor() != piece.getColor();
+    }
+
+    private void expiredCrossMove() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (board[i][j] instanceof Pawn) {
+                    ((Pawn) board[i][j]).setCrossed(false);
+                }
+            }
         }
     }
 
