@@ -3,6 +3,9 @@ package model;
 import constant.ChessColor;
 import model.piece.*;
 
+import javax.swing.*;
+import java.util.Arrays;
+
 public class ChessBoard {
     private final int size;
     private final Piece[][] board;
@@ -92,6 +95,7 @@ public class ChessBoard {
     }
 
     public void movePiece(int startX, int startY, int endX, int endY) {
+        resetCheck();
         if (board[startX][startY] == null) {
             System.out.println("No piece at the starting position");
             return;
@@ -125,6 +129,11 @@ public class ChessBoard {
                 board[startX][endY] = null;
             }
 
+            // Kiểm tra phong cấp
+            if (board[endX][endY] instanceof Pawn && (endX == 0 || endX == 7)) {
+                promotePawn(endX, endY);
+            }
+
             if (board[endX][endY].check(board)) {
                 if (color == ChessColor.WHITE) {
                     blackIsChecked = true;
@@ -137,7 +146,6 @@ public class ChessBoard {
             expiredCrossMove();
             validateCross(board[endX][endY], startX, startY, endX, endY);
 
-
             whiteIsMoving = color != ChessColor.WHITE;
 
             if (isCheckMate() != 0) {
@@ -146,6 +154,11 @@ public class ChessBoard {
         } else {
             invalidMove(board[startX][startY], endX, endY);
         }
+    }
+
+    private void resetCheck() {
+        whiteIsChecked = false;
+        blackIsChecked = false;
     }
 
     private void validateCross(Piece piece, int startX, int startY, int endX, int endY) {
@@ -161,7 +174,7 @@ public class ChessBoard {
     }
 
     private boolean isCrossMove(Piece piece, int startX, int startY, int endX, int endY) {
-        return piece instanceof Pawn && board[startX][endY] != null && board[startX][endY] instanceof Pawn && board[startX][endY].getColor() != piece.getColor();
+        return piece instanceof Pawn && board[startX][endY] != null && board[startX][endY] instanceof Pawn && board[startX][endY].getColor() != piece.getColor() && board[endX][endY] == null;
     }
 
     private void expiredCrossMove() {
@@ -172,6 +185,37 @@ public class ChessBoard {
                 }
             }
         }
+    }
+
+    private void promotePawn(int row, int col) {
+        // Hiển thị giao diện để người dùng chọn quân cờ phong cấp
+        String[] options = {"Queen", "Rook", "Bishop", "Knight"};
+        String choice = (String) JOptionPane.showInputDialog(
+                null,
+                "Choose a piece to promote the pawn:",
+                "Promote Pawn",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        // Phong cấp quân tốt thành quân cờ được chọn
+        if (choice != null) {
+            Piece promotedPiece = createPromotedPiece(choice, board[row][col]);
+            board[row][col] = promotedPiece;
+        }
+    }
+
+    private Piece createPromotedPiece(String pieceType, Piece piece) {
+        return switch (pieceType) {
+            case "Queen" -> new Queen("Queen", piece.getColor(), piece.getX(), piece.getY(), piece.isTopToBottom());
+            case "Rook" -> new Rook("Rook", piece.getColor(), piece.getX(), piece.getY(), piece.isTopToBottom());
+            case "Bishop" -> new Bishop("Bishop", piece.getColor(), piece.getX(), piece.getY(), piece.isTopToBottom());
+            case "Knight" -> new Knight("Knight", piece.getColor(), piece.getX(), piece.getY(), piece.isTopToBottom());
+            default ->
+                    new Queen("Queen", piece.getColor(), piece.getX(), piece.getY(), piece.isTopToBottom()); // Mặc định phong cấp thành hậu
+        };
     }
 
     public int isCheckMate() {
